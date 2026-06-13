@@ -131,49 +131,58 @@ function buildSongs() {
 
       group.onclick = () => {
 
-        // prevent duplicates
-        if (group.dataset.opened) return;
-        group.dataset.opened = true;
+  if (group.dataset.opened) {
 
-        song.versions.forEach(version => {
+    group.dataset.opened = "";
 
-          const div = document.createElement("div");
-          div.className = "song";
+    document.querySelectorAll(`.version-${i}`).forEach(div => {
+      div.remove();
+    });
 
-          div.innerHTML = `
-            <div style="display:flex; align-items:center;">
-              <div style="width:60px;">
-                <strong>${version.version}</strong>
-              </div>
+    group.innerHTML = `<strong>${song.title} ▼</strong>`;
 
-              <div style="flex:1; text-align:center;">
-                <strong>${song.title}</strong><br>
-                <small>${version.artist}</small>
-              </div>
-            </div>
-          `;
+  } else {
 
-          div.onclick = (e) => {
-            e.stopPropagation();
+    group.dataset.opened = true;
 
-            window.audio.src = version.file;
-            window.audio.play();
+    song.versions.forEach(version => {
 
-            updateMediaSession({
-              title: song.title,
-              artist: version.artist
-            });
-          };
+      const div = document.createElement("div");
+      div.className = `song version-${i}`;
 
-          group.after(div);
+      div.innerHTML = `
+        <div style="display:flex; align-items:center;">
+          <div style="width:60px;">
+            <strong>${version.version}</strong>
+          </div>
 
+          <div style="flex:1; text-align:center;">
+            <strong>${song.title}</strong><br>
+            <small>${version.artist}</small>
+          </div>
+        </div>
+      `;
+
+      div.onclick = (e) => {
+        e.stopPropagation();
+
+        window.audio.src = version.file;
+        window.audio.play();
+
+        updateMediaSession({
+          title: song.title,
+          artist: version.artist
         });
-
       };
 
-      songsDiv.appendChild(group);
+      group.after(div);
 
-    }
+    });
+
+    group.innerHTML = `<strong>${song.title} ▲</strong>`;
+  }
+
+};
 
     // NORMAL SONG
     else {
