@@ -198,6 +198,27 @@ function buildSongs() {
 
 // PLAY SONG
 function playSong(i) {
+
+  // Skip version groups
+  while (
+    i < currentAlbum.songs.length &&
+    currentAlbum.songs[i].versions
+  ) {
+    i++;
+  }
+
+  // Loop back to beginning if needed
+  if (i >= currentAlbum.songs.length) {
+    i = 0;
+
+    while (
+      i < currentAlbum.songs.length &&
+      currentAlbum.songs[i].versions
+    ) {
+      i++;
+    }
+  }
+
   currentIndex = i;
 
   const song = currentAlbum.songs[i];
@@ -274,20 +295,40 @@ window.addEventListener("DOMContentLoaded", () => {
   const audio = document.getElementById("audio");
 
   audio.addEventListener("ended", () => {
-    if (!currentAlbum) return;
+  if (!currentAlbum) return;
 
-    const nextIndex = currentIndex + 1;
+  const list = getPlayableSongs();
 
-    if (nextIndex < currentAlbum.songs.length) {
-      playSong(nextIndex);
-    } else {
-      playSong(0);
-    }
-  });
+  const currentSong = currentAlbum.songs[currentIndex];
+  const nextIndex = list.indexOf(currentSong) + 1;
+
+  if (nextIndex < list.length) {
+    const nextSong = list[nextIndex];
+
+    const realIndex = currentAlbum.songs.indexOf(nextSong);
+    playSong(realIndex);
+  } else {
+    playSong(currentAlbum.songs.indexOf(list[0]));
+  }
+});
 
   // expose audio globally so playSong can use it safely
   window.audio = audio;
 });
+
+function getPlayableSongs() {
+  const list = [];
+
+  currentAlbum.songs.forEach(song => {
+    if (song.versions) {
+      // skip the container entirely
+      return;
+    }
+    list.push(song);
+  });
+
+  return list;
+}
   
 </script>
 
